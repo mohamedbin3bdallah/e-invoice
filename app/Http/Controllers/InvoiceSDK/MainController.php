@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\SdkInvoicingEtaRequest;
 use Auth;
+use Session;
 
 class MainController extends Controller
 {
@@ -28,10 +29,19 @@ class MainController extends Controller
 	protected $request_send = 1;
 	protected $max_decimal = 9999999999999999999.99999;
 	
+	public $access_token;
+	public $invoice_sdk_token;
+	
 	public function __construct(Request $request)
     {
         $request->headers->set('Accept', 'application/json');
         //$request->headers->set('Content-Type', 'application/json');
+		
+		if(Session::has('access_token') and Session::has('invoice_sdk_token'))
+		{
+			$this->access_token = session('access_token');
+			$this->invoice_sdk_token = session('invoice_sdk_token');
+		}
     }
 	
 	/**

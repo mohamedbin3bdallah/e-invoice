@@ -202,37 +202,33 @@ class DocumentController extends AccessController
 		else
 		{
 			$success = [];
-			$tokens = $this->create_tokens($request);
-			if($tokens['invoice_sdk_token']['code'] == 0) $errors = $tokens['invoice_sdk_token']['data'];
-			else
+			
+			$main_controller = new MainController($request);
+			$get = json_decode($main_controller->postCurl(json_encode($documents), $main_controller->einvoice_api_base_url.'/einvoicing/name/documents_submit', ['Content-Type: application/json', 'Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->invoice_sdk_token]), TRUE);
+			
+			$return = $this->check_auth($get);
+			
+			if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
+			elseif(isset($return['data']['accepts']) and !empty($return['data']['accepts']))
 			{
-				$main_controller = new MainController($request);
-				$get = json_decode($main_controller->postCurl(json_encode($documents), $main_controller->einvoice_api_base_url.'/einvoicing/name/documents_submit', ['Content-Type: application/json', 'Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]), TRUE);
+				$success = $return['data']['accepts'];
 				
-				$return = $this->check_auth($get);
-				
-				if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
-				elseif(isset($return['data']['accepts']) and !empty($return['data']['accepts']))
+				foreach($return['data']['accepts'] as $accept)
 				{
-					$success = $return['data']['accepts'];
+					DocumentReference::create(['reference_id'=>$accept['longId'], 'referenced_document_uuid'=>$accept['uuid']]);
+					DocumentStatus::create(['reference_id'=>$accept['longId'], 'document_uuid'=>$accept['uuid'], 'submission_id'=>$return['data']['submission_uuid'], 'processing_result'=>'success', 'document_status'=>'submitted']);
 					
-					foreach($return['data']['accepts'] as $accept)
+					$document_table['reference_id'] = $accept['longId'];
+					Document::create($document_table);
+					
+					foreach($items_table as $key => $item_table)
 					{
-						DocumentReference::create(['reference_id'=>$accept['longId'], 'referenced_document_uuid'=>$accept['uuid']]);
-						DocumentStatus::create(['reference_id'=>$accept['longId'], 'document_uuid'=>$accept['uuid'], 'submission_id'=>$return['data']['submission_uuid'], 'processing_result'=>'success', 'document_status'=>'submitted']);
-						
-						$document_table['reference_id'] = $accept['longId'];
-						Document::create($document_table);
-						
-						foreach($items_table as $key => $item_table)
-						{
-							$item_table['reference_id'] = $accept['longId'];
-							DocumentLine::create($item_table);
-						}
+						$item_table['reference_id'] = $accept['longId'];
+						DocumentLine::create($item_table);
 					}
 				}
-				else $errors[] = __('trans.no_response');
 			}
+			else $errors[] = __('trans.no_response');
 			
 			if(!empty($errors)) return redirect()->back()->withErrors(['document' => implode(', ', $errors)]);
 			else
@@ -264,20 +260,15 @@ class DocumentController extends AccessController
 			]
 		];
 		
-		$tokens = $this->create_tokens($request);
-		if($tokens['invoice_sdk_token']['code'] == 0) $errors = $tokens['invoice_sdk_token']['data'];
-		else
+		$main_controller = new MainController($request);
+		$get = json_decode($main_controller->postCurl(json_encode($query_parameters), $main_controller->einvoice_api_base_url.'/einvoicing/name/request_document_package', ['Content-Type: application/json', 'Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->invoice_sdk_token]), TRUE);
+		
+		$return = $this->check_auth($get);
+		
+		if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
+		elseif(isset($return['data']['rid']) and $return['data']['rid'] != '')
 		{
-			$main_controller = new MainController($request);
-			$get = json_decode($main_controller->postCurl(json_encode($query_parameters), $main_controller->einvoice_api_base_url.'/einvoicing/name/request_document_package', ['Content-Type: application/json', 'Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]), TRUE);
-			
-			$return = $this->check_auth($get);
-			
-			if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
-			elseif(isset($return['data']['rid']) and $return['data']['rid'] != '')
-			{
-				DocumentsPackageIds::create(['documents_package_id'=>$return['data']['rid'], 'search'=>json_encode($query_parameters)]);
-			}
+			DocumentsPackageIds::create(['documents_package_id'=>$return['data']['rid'], 'search'=>json_encode($query_parameters)]);
 		}
 		
 		if(!empty($errors)) return redirect()->back()->withErrors(['documents' => implode(', ', $errors)]);
@@ -344,21 +335,17 @@ class DocumentController extends AccessController
 	public function get_documents_package_zip_file(Request $request, $package_id)
 	{
 		$errors = '';
-		$tokens = $this->create_tokens($request);
-		if($tokens['invoice_sdk_token']['code'] == 0) $errors = implode(', ', $tokens['invoice_sdk_token']['data']);
-		else
+		
+		$main_controller = new MainController($request);
+		$get = $main_controller->postCurl(['rid'=>$package_id], $main_controller->einvoice_api_base_url.'/einvoicing/name/document_packages', ['Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->invoice_sdk_token]);
+		
+		$get_json = json_decode($get, TRUE);
+		$return = $this->check_auth($get_json);
+		
+		if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = implode(', ', $return['data']['errors']);
+		elseif(empty($get_json) and isset($get))
 		{
-			$main_controller = new MainController($request);
-			$get = $main_controller->postCurl(['rid'=>$package_id], $main_controller->einvoice_api_base_url.'/einvoicing/name/document_packages', ['Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]);
-			
-			$get_json = json_decode($get, TRUE);
-			$return = $this->check_auth($get_json);
-			
-			if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = implode(', ', $return['data']['errors']);
-			elseif(empty($get_json) and isset($get))
-			{
-				File::put(public_path($this->zip_folder.$package_id.'.zip'),$get);
-			}
+			File::put(public_path($this->zip_folder.$package_id.'.zip'),$get);
 		}
 		
 		return $errors;
@@ -373,21 +360,16 @@ class DocumentController extends AccessController
     public function status_change(Request $request)
     {
 		$errors = [];
-
-		$tokens = $this->create_tokens($request);
-		if($tokens['invoice_sdk_token']['code'] == 0) $errors = $tokens['invoice_sdk_token']['data'];
+		
+		$main_controller = new MainController($request);
+		$get = json_decode($main_controller->postCurl($request->all(), $main_controller->einvoice_api_base_url.'/einvoicing/name/document_status', ['Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->access_token]), TRUE);
+		
+		$return = $this->check_auth($get);
+		echo '<pre>'; print_r($return); echo '</pre>';
+		if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
 		else
 		{
-			$main_controller = new MainController($request);
-			$get = json_decode($main_controller->postCurl($request->all(), $main_controller->einvoice_api_base_url.'/einvoicing/name/document_status', ['Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]), TRUE);
-			
-			$return = $this->check_auth($get);
-			echo '<pre>'; print_r($return); echo '</pre>';
-			if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
-			else
-			{
-				DocumentStatus::where(['document_uuid'=>$request->uuid])->update(['document_status'=>$request->status]);
-			}
+			DocumentStatus::where(['document_uuid'=>$request->uuid])->update(['document_status'=>$request->status]);
 		}
 		
 		if(!empty($errors)) return redirect()->back()->withErrors(['documents' => implode(', ', $errors)]);

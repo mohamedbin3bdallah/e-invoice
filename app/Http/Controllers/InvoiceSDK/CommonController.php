@@ -71,7 +71,7 @@ class CommonController extends MainController
      */
 	public function documenttypes_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -114,7 +114,7 @@ class CommonController extends MainController
      */
 	public function documenttype_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -158,7 +158,7 @@ class CommonController extends MainController
      */
 	public function documenttype_version_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -211,7 +211,7 @@ class CommonController extends MainController
      */
 	public function notifications_taxpayer_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -267,7 +267,7 @@ class CommonController extends MainController
      */
 	public function codetype_request_codes_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else
 		{
 			$errors = [];
@@ -354,7 +354,7 @@ class CommonController extends MainController
      */
 	public function codetype_request_my_search_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else
 		{
 			$result = json_decode($return);
@@ -406,7 +406,7 @@ class CommonController extends MainController
      */
 	public function codetype_request_codeusages_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -466,7 +466,7 @@ class CommonController extends MainController
      */
 	public function codetype_code_published_search_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -510,7 +510,7 @@ class CommonController extends MainController
      */
 	public function codetype_code_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -567,7 +567,7 @@ class CommonController extends MainController
      */
 	public function codetype_request_code_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -619,7 +619,7 @@ class CommonController extends MainController
      */
 	public function codetype_code_update_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 }

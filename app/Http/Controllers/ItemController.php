@@ -34,21 +34,17 @@ class ItemController extends AccessController
     public function get(Request $request)
     {
 		$items = ['errors'=>[], 'data'=>[]];
-		$tokens = $this->create_tokens($request);
-		if($tokens['invoice_sdk_token']['code'] == 0) $items['errors'] = $tokens['invoice_sdk_token']['data'];
+		
+		$main_controller = new MainController($request);
+		$get = json_decode($main_controller->postCurl(['PageNumber'=>1, 'pageSize'=>1000000], $main_controller->einvoice_api_base_url.'/common/name/codetype_request_my_search', ['Content-Type: application/x-www-form-urlencoded', 'Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->invoice_sdk_token]), TRUE);
+		
+		$return = $this->check_auth($get);
+		
+		if($return['code'] == 0) $items['errors'] = $return['data']['errors'];
 		else
 		{
-			$main_controller = new MainController($request);
-			$get = json_decode($main_controller->postCurl(['PageNumber'=>1, 'pageSize'=>1000000], $main_controller->einvoice_api_base_url.'/common/name/codetype_request_my_search', ['Content-Type: application/x-www-form-urlencoded', 'Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]), TRUE);
-			
-			$return = $this->check_auth($get);
-			
-			if($return['code'] == 0) $items['errors'] = $return['data']['errors'];
-			else
-			{
-				File::put(public_path($this->main_redirection.'/jsons/'.$this->main_redirection.'.json'), json_encode($get['data']));
-				$items['data'] = $get['data'];
-			}
+			File::put(public_path($this->main_redirection.'/jsons/'.$this->main_redirection.'.json'), json_encode($get['data']));
+			$items['data'] = $get['data'];
 		}
 		
 		//$items['data'] = json_decode(file_get_contents(public_path($this->main_redirection.'/jsons/'.$this->main_redirection.'.json')), true);
@@ -101,19 +97,14 @@ class ItemController extends AccessController
 							->toArray();
 			if(!empty($items['items']))
 			{
-				$tokens = $this->create_tokens($request);
-				if($tokens['invoice_sdk_token']['code'] == 0) $errors = $tokens['invoice_sdk_token']['data'];
-				else
-				{
-					$main_controller = new MainController($request);
-					$get = json_decode($main_controller->postCurl(json_encode($items), $main_controller->einvoice_api_base_url.'/common/name/codetype_request_codes', ['Content-Type: application/json', 'Authorization: Bearer '.$tokens['access_token'], 'invoice-sdk-token: '.$tokens['invoice_sdk_token']['data'][0]]), TRUE);
-					
-					$return = $this->check_auth($get);
-					
-					if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
-					if(isset($return['data']['accepts']) and !empty($return['data']['accepts'])) Item::whereIn('itemCode', $return['data']['accepts'])->update(['done'=>1]);
-					Item::where('done', 0)->delete();
-				}
+				$main_controller = new MainController($request);
+				$get = json_decode($main_controller->postCurl(json_encode($items), $main_controller->einvoice_api_base_url.'/common/name/codetype_request_codes', ['Content-Type: application/json', 'Authorization: Bearer '.$main_controller->access_token, 'invoice-sdk-token: '.$main_controller->invoice_sdk_token]), TRUE);
+				
+				$return = $this->check_auth($get);
+				
+				if(isset($return['data']['errors']) and !empty($return['data']['errors'])) $errors = $return['data']['errors'];
+				if(isset($return['data']['accepts']) and !empty($return['data']['accepts'])) Item::whereIn('itemCode', $return['data']['accepts'])->update(['done'=>1]);
+				Item::where('done', 0)->delete();
 				
 				if(!empty($errors)) return redirect()->back()->withErrors(['file' => implode(', ', $errors)]);
 				else

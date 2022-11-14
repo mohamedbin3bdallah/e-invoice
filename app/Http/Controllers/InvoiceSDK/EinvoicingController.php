@@ -182,7 +182,7 @@ class EinvoicingController extends MainController
      */
 	public function documents_submit_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		elseif(strpos($return, 'administrator') !== false) return $this->response_json(1, __('trans.the_requested_url_was_rejected'), ['errors'=>[strip_tags($return)]]);
 		else
 		{
@@ -263,7 +263,7 @@ class EinvoicingController extends MainController
      */
 	public function document_status_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else
 		{
 			$errors = [];
@@ -326,7 +326,7 @@ class EinvoicingController extends MainController
      */
 	public function documents_recent_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -388,7 +388,7 @@ class EinvoicingController extends MainController
      */
 	public function request_document_package_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else
 		{
 			$errors = [];
@@ -450,7 +450,7 @@ class EinvoicingController extends MainController
      */
 	public function document_package_requests_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -493,7 +493,7 @@ class EinvoicingController extends MainController
      */
 	public function document_packages_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else
 		{
 			$errors = [];
@@ -553,7 +553,7 @@ class EinvoicingController extends MainController
      */
 	public function document_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -598,7 +598,7 @@ class EinvoicingController extends MainController
      */
 	public function document_submissions_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -641,7 +641,7 @@ class EinvoicingController extends MainController
      */
 	public function document_printout_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -684,7 +684,7 @@ class EinvoicingController extends MainController
      */
 	public function document_details_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 	
@@ -729,7 +729,7 @@ class EinvoicingController extends MainController
      */
 	public function document_decline_status_returns($return)
     {
-		if(strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
+		if($return == '' or strpos($return, '401') !== false) return $this->response_json(0, __('trans.accessToken_not_authorized'), ['errors'=>[__('trans.accessToken_not_authorized')]]);
 		else return $this->response_json(1, __('trans.success'), json_decode($return));
     }
 }

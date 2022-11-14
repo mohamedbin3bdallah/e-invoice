@@ -9,6 +9,7 @@ use App\Models\User;
 use ZipArchive;
 use File;
 use Auth;
+use Session;
 
 class AccessController extends Controller
 {
@@ -23,23 +24,13 @@ class AccessController extends Controller
     {
 		parent::__construct();
 		
-        $activity_codes_data = (File::exists(public_path($this->activity_codes_file)))? json_decode(file_get_contents(public_path($this->activity_codes_file)), true):[];
-		foreach($activity_codes_data as $activity_code_data)
-		{
-			$this->activity_codes[$activity_code_data['code']] = $activity_code_data['Desc_'.$this->cur_lang];
-		}
+		$this->logout_session_time();
 		
-		$tax_types_data = (File::exists(public_path($this->tax_types_file)))? json_decode(file_get_contents(public_path($this->tax_types_file)), true):[];
-		foreach($tax_types_data as $tax_type_data)
-		{
-			$this->tax_types[$tax_type_data['Code']] = $tax_type_data['Desc_'.$this->cur_lang];
-		}
+		$this->activity_codes = $this->get_file_codes($this->activity_codes_file);
 		
-		$tax_sub_types_data = (File::exists(public_path($this->tax_sub_types_file)))? json_decode(file_get_contents(public_path($this->tax_sub_types_file)), true):[];
-		foreach($tax_sub_types_data as $tax_sub_type_data)
-		{
-			$this->tax_sub_types[$tax_sub_type_data['TaxtypeReference']][$tax_sub_type_data['Code']] = $tax_sub_type_data['Desc_'.$this->cur_lang];
-		}
+		$this->tax_types = $this->get_file_codes($this->tax_types_file);
+		
+		$this->tax_sub_types = $this->get_file_codes($this->tax_sub_types_file);
     }
 	
 	/**
@@ -112,6 +103,23 @@ class AccessController extends Controller
     }
 	
 	/**
+     * Logout.
+     *
+     * @return redirection
+	 */
+	public function logout_session_time()
+	{
+		if(Session::has('logout_time') and session('logout_time') <= time())
+		{
+			Auth::user()->tokens()->delete();
+			Auth::guard('web')->logout();
+			Session::invalidate();
+			Session::regenerateToken();
+			return redirect()->route('login');
+		}
+	}
+	
+	/**
      * Unzip File.
      *
 	 * @param  $file
@@ -171,6 +179,48 @@ class AccessController extends Controller
 				$data[$key] = json_decode(file_get_contents($file), true);
 				$data[$key]['uuid'] = basename($file, '.json');
 			}
+		}
+		
+		return $data;
+	}
+	
+	/**
+     * Get File Codes.
+     *
+	 * @param  $file
+     * @return array $$data
+	 */
+	public function get_file_codes($file)
+	{
+		$data = [];
+		$file_data = (File::exists(public_path($file)))? json_decode(file_get_contents(public_path($file)), true):[];
+		
+		switch ($file)
+		{
+			case $this->activity_codes_file:
+				foreach($file_data as $file_single_data)
+				{
+					$data[$file_single_data['code']] = $file_single_data['Desc_'.$this->cur_lang];
+				}
+				break;
+			
+			case $this->tax_types_file:
+				foreach($file_data as $file_single_data)
+				{
+					$data[$file_single_data['Code']] = $file_single_data['Desc_'.$this->cur_lang];
+				}
+				break;
+			
+			case $this->tax_sub_types_file:
+				foreach($file_data as $file_single_data)
+				{
+					$data[$file_single_data['TaxtypeReference']][$file_single_data['Code']] = $file_single_data['Desc_'.$this->cur_lang];
+				}
+				break;
+			
+			default:
+				$data = [];
+			
 		}
 		
 		return $data;
